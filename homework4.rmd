@@ -1,0 +1,93 @@
+---
+title: "homework 4"
+output: html_document
+date: "2025-10-23"
+---
+```{r}
+library(sf)
+library(tidyverse)
+library(dplyr)
+```
+# read csv data
+```{r}
+gender_inequality_index <- read_csv("data/week4_gender_inequality_index.csv")
+```
+# processing the data
+## pivot wide by 2010 and 2019
+## calculate the difference
+```{r}
+gender_index_wide <- gender_inequality_index %>%
+  select(countryIsoCode, country, year, value) %>%
+  pivot_wider(names_from = year,
+              values_from = value,) %>%
+  mutate(difference = `2019` - `2010`)
+```
+
+# read geojson
+```{r}
+world_countries <- st_read("data/week4_World_Countries_(Generalized)_9029012925078512962.geojson")
+plot(world_countries)
+```
+# join the index data and geojson
+```{r}
+countries_join <- world_countries %>%
+  left_join(.,
+            gender_index_wide,
+            by = c("COUNTRY"="country")) 
+# remove the unnecessary columns  
+countries_join_cleaned <- countries_join %>%
+  select(COUNTRY,
+         `2019`,
+         `2010`,
+         difference)
+view(countries_join_cleaned)
+```
+
+# plot
+```{r}
+library(ggplot2)
+
+# plot histgram to show statistic distribution
+ggplot(countries_join_cleaned, aes(x = difference)) +
+  
+  geom_histogram(binwidth = 0.01, fill = "steelblue", color = "white") +
+  
+  labs(
+    title = "Distribution of GII Improvement (2019 - 2010)",
+    x = "Difference in Gender Inequality Index",
+    y = "Number of Countries"
+  ) +
+  
+  theme_minimal() +
+  
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+  
+  theme(
+    plot.title = element_text(hjust = 0.5) 
+  )
+
+
+# plot choropleth map
+ggplot(data = countries_join_cleaned) +
+  geom_sf(aes(fill = difference)) +
+  
+  scale_fill_gradient2(
+    low = "blue",    
+    mid = "white",    
+    high = "red",     
+    midpoint = 0,    
+    na.value = "grey80"
+  ) +
+  
+  labs(
+    title = "Improvement in Gender Inequality Index (2010 vs 2019)",
+    fill = "GII Difference" 
+  ) +
+  
+  theme_void() +
+
+theme(
+    plot.title = element_text(hjust = 0.5) 
+  )
+```
+
