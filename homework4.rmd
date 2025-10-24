@@ -1,20 +1,27 @@
 ---
-title: "homework 4"
+title: "Homework 4: World Inequality index"
 output: html_document
 date: "2025-10-23"
 ---
+load packages
 ```{r}
 library(sf)
 library(tidyverse)
 library(dplyr)
+library(ggplot2)
 ```
-# read csv data
+
+# Read csv and geojson
 ```{r}
 gender_inequality_index <- read_csv("data/week4_gender_inequality_index.csv")
+
+world_countries <- st_read("data/week4_World_Countries_(Generalized)_9029012925078512962.geojson")
+plot(world_countries)
 ```
-# processing the data
-## pivot wide by 2010 and 2019
-## calculate the difference
+
+# Processing the data
+
+pivot widee and calculate the difference between 2019 and 2010
 ```{r}
 gender_index_wide <- gender_inequality_index %>%
   select(countryIsoCode, country, year, value) %>%
@@ -23,12 +30,7 @@ gender_index_wide <- gender_inequality_index %>%
   mutate(difference = `2019` - `2010`)
 ```
 
-# read geojson
-```{r}
-world_countries <- st_read("data/week4_World_Countries_(Generalized)_9029012925078512962.geojson")
-plot(world_countries)
-```
-# join the index data and geojson
+join the index data and geojson
 ```{r}
 countries_join <- world_countries %>%
   left_join(.,
@@ -43,11 +45,9 @@ countries_join_cleaned <- countries_join %>%
 view(countries_join_cleaned)
 ```
 
-# plot
+# Plot
+plot histgram to show statistic distribution
 ```{r}
-library(ggplot2)
-
-# plot histgram to show statistic distribution
 ggplot(countries_join_cleaned, aes(x = difference)) +
   
   geom_histogram(binwidth = 0.01, fill = "steelblue", color = "white") +
@@ -65,9 +65,10 @@ ggplot(countries_join_cleaned, aes(x = difference)) +
   theme(
     plot.title = element_text(hjust = 0.5) 
   )
+```
 
-
-# plot choropleth map
+plot choropleth map
+```{r}
 ggplot(data = countries_join_cleaned) +
   geom_sf(aes(fill = difference)) +
   
@@ -90,4 +91,3 @@ theme(
     plot.title = element_text(hjust = 0.5) 
   )
 ```
-
