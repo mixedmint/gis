@@ -11,7 +11,7 @@ library(dplyr)
 library(ggplot2)
 ```
 
-# Read csv and geojson
+## Read csv and geojson
 ```{r}
 gender_inequality_index <- read_csv("data/week4_gender_inequality_index.csv")
 
@@ -19,7 +19,7 @@ world_countries <- st_read("data/week4_World_Countries_(Generalized)_90290129250
 plot(world_countries)
 ```
 
-# Processing the data
+## Processing the data
 
 pivot widee and calculate the difference between 2019 and 2010
 ```{r}
@@ -45,7 +45,7 @@ countries_join_cleaned <- countries_join %>%
 view(countries_join_cleaned)
 ```
 
-# Plot
+## Plot
 plot histgram to show statistic distribution
 ```{r}
 ggplot(countries_join_cleaned, aes(x = difference)) +
@@ -91,3 +91,5 @@ theme(
     plot.title = element_text(hjust = 0.5) 
   )
 ```
+
+In 2019, most countries's gender inequality index decreased compared with that of 2010, which is good to see.
