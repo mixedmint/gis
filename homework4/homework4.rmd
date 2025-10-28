@@ -35,7 +35,7 @@ join the index data and geojson
 countries_join <- world_countries %>%
   left_join(.,
             gender_index_wide,
-            by = c("COUNTRY"="country")) 
+            by = c("COUNTRY"="country"))  #can't join with country names, using iso code
 # remove the unnecessary columns  
 countries_join_cleaned <- countries_join %>%
   select(COUNTRY,
