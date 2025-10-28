@@ -13,9 +13,9 @@ library(ggplot2)
 
 ## Read csv and geojson
 ```{r}
-gender_inequality_index <- read_csv("data/week4_gender_inequality_index.csv")
+gender_inequality_index <- read_csv("data/week4/week4_gender_inequality_index.csv")
 
-world_countries <- st_read("data/week4_World_Countries_(Generalized)_9029012925078512962.geojson")
+world_countries <- st_read("data/week4/week4_World_Countries_(Generalized)_9029012925078512962.geojson")
 plot(world_countries)
 ```
 
