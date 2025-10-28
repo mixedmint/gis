@@ -1,0 +1,97 @@
+---
+title: "Homework 4: World Inequality index"
+output: html_document
+date: "2025-10-23"
+---
+load packages
+```{r}
+library(sf)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(countrycode)
+```
+
+## Read csv and geojson
+```{r}
+gender_inequality_index <- read_csv("data/week4/week4_gender_inequality_index.csv")
+
+world_countries <- st_read("data/week4/week4_World_Countries_(Generalized)_9029012925078512962.geojson")
+plot(world_countries)
+```
+
+## Processing the data
+
+pivot wider, calculate the difference between 2019 and 2010 and convert iso-3 to iso-2
+```{r}
+gender_index_wide <- gender_inequality_index %>%
+  select(countryIsoCode, country, year, value) %>%
+  pivot_wider(names_from = year,
+              values_from = value,) %>%
+  mutate(difference = `2019` - `2010`) %>%
+  mutate(iso_2 = countrycode(country, origin = 'country.name', destination = 'iso2c'))
+```
+
+join the index data and geojson
+```{r}
+countries_join <- world_countries %>%
+  left_join(.,
+            gender_index_wide,
+            by = c("ISO"="iso_2"))  #can't join with country names, using iso code
+# remove the unnecessary columns  
+countries_join_cleaned <- countries_join %>%
+  select(COUNTRY,
+         `2019`,
+         `2010`,
+         difference)
+view(countries_join_cleaned)
+```
+
+## Plot
+plot histgram to show statistic distribution
+```{r}
+ggplot(countries_join_cleaned, aes(x = difference)) +
+  
+  geom_histogram(binwidth = 0.01, fill = "steelblue", color = "white") +
+  
+  labs(
+    title = "Distribution of GII Improvement (2019 - 2010)",
+    x = "Difference in Gender Inequality Index",
+    y = "Number of Countries"
+  ) +
+  
+  theme_minimal() +
+  
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+  
+  theme(
+    plot.title = element_text(hjust = 0.5) 
+  )
+```
+
+plot choropleth map
+```{r}
+ggplot(data = countries_join_cleaned) +
+  geom_sf(aes(fill = difference)) +
+  
+  scale_fill_gradient2(
+    low = "blue",    
+    mid = "white",    
+    high = "red",     
+    midpoint = 0,    
+    na.value = "grey80"
+  ) +
+  
+  labs(
+    title = "Improvement in Gender Inequality Index (2010 vs 2019)",
+    fill = "GII Difference" 
+  ) +
+  
+  theme_void() +
+
+theme(
+    plot.title = element_text(hjust = 0.5) 
+  )
+```
+
+In 2019, most countries's gender inequality index decreased compared with that of 2010, which is good to see.
